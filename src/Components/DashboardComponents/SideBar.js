@@ -6,7 +6,7 @@ export const SideBar = () => {
     <aside className="app-sidebar">
       <ul className="side-menu">
         <li>
-          <Link className="side-menu__item" to="/dashboard">
+          <Link className="side-menu__item" to="/">
             <i className="side-menu__icon fa fa fa-desktop"></i>
             <span className="side-menu__label">Dashboard</span>
           </Link>

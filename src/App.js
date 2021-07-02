@@ -30,7 +30,7 @@ function App() {
               {/* <Route>
                 <Login />
               </Route> */}
-              <Route path="/dashboard" exact>
+              <Route path="/" exact>
                 <Dashboard />
               </Route>
               <Route path="/orders" exact>
