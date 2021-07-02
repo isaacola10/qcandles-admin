@@ -44,7 +44,7 @@ export const EditForm = ({match}) => {
             dispatch(getProductDetails(match.params.uuid));
         }
         setProducts(product && product)
-    }, [match]);
+    }, [dispatch, product, match]);
 
     const updateInventory = (e) => {
         e.preventDefault()
@@ -178,7 +178,7 @@ export const EditForm = ({match}) => {
                                                 onChange={handleFileChange}
                                             />
                                         </div>
-                                        <button className="btn btn-primary mt-4" type="submit">Edit Product</button>
+                                        <button disabled={buttonClick} className="btn btn-primary mt-4" type="submit">Edit Product</button>
                                     </form>
                                 </div>
                             ) : (

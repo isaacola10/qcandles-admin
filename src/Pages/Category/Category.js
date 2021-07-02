@@ -86,7 +86,7 @@ export const Category = () => {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <button className="btn btn-primary">Save</button>
+                    <button className="btn btn-primary" disabled={buttonClick}>Save</button>
                   </div>
                 </form>
               </div>

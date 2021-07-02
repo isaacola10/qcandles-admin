@@ -159,7 +159,7 @@ export const InventoryForm = () => {
                                 <button
                                     className="btn btn-primary mt-4"
                                     type="submit"
-                                    // disabled={buttonClick}
+                                    disabled={buttonClick}
                                 >Create Product</button>
                             </form>
                         </div>

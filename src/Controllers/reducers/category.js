@@ -44,6 +44,8 @@ export const createCategoryReducer = (state = { category: {} }, action) => {
                 loading: false,
                 error: payload
             }
+        default:
+            return state
     }
 }
 

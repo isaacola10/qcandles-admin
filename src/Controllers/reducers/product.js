@@ -92,6 +92,7 @@ export const updateProductReducer = (state = { product: [] }, action) => {
                 products: state.products.map(product => {
                     if(product.uuid === uuid){
                         product = data.status;
+                        return product
                     }
                 })
             }

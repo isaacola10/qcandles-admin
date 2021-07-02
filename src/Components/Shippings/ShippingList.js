@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import { Link } from "react-router-dom";
 import {deleteShipping, getShippings as listShipping} from "../../Controllers/actions/shipping";
-import {deleteDiscount} from "../../Controllers/actions/discount";
 import {Toast} from "../FormBuilder/Toast";
 
 export const ShippingList = (props) => {
