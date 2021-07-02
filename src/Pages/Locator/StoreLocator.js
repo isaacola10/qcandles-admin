@@ -1,6 +1,76 @@
-import React from "react";
+import React, {useState} from "react";
+import Select from 'react-select'
+import {useDispatch} from "react-redux";
+import {createStore} from "../../Controllers/actions/storelocator";
+import {Toast} from "../../Components/FormBuilder/Toast";
+import {StoreLists} from "../../Components/StoreLocator/StoreLists";
 
 export const StoreLocator = () => {
+  const dispatch = useDispatch()
+
+  const work_days = [
+    {label: "Monday", value: "Monday"},
+    {label: "Tuesday", value: "Tuesday"},
+    {label: "Wednesday", value: "Wednesday"},
+    {label: "Thursday", value: "Thursday"},
+    {label: "Friday", value: "Friday"},
+    {label: "Saturday", value: "Saturday"},
+    {label: "Sunday", value: "Sunday"},
+  ]
+  const [days, setDays] = useState([]);
+  const [newArray, setNewArray] = useState([]);
+  const [displayToast, setDisplayToast] = useState(false);
+  const [message, setMessage] = useState(null)
+  const [buttonClick, setButtonClick] = useState(false)
+
+  const handleDayChange = (days) => {
+    setDays(newArray.concat(days))
+  }
+
+  const [values, setValues] = useState({
+    store_name: '',
+    address: '',
+    open_time: '',
+    close_time: '',
+  })
+
+  const handleChange = (e) => {
+    setValues({
+      ...values,
+      [e.target.name]:e.target.value
+    })
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    console.log(days)
+
+    const {store_name, address, open_time, close_time} = values
+    const formData = {
+      store_name: store_name,
+      address: address,
+      open_time: open_time,
+      close_time: close_time,
+      working_days: days,
+    }
+    setButtonClick(true)
+    dispatch(createStore(formData)).then(data => {
+      console.log(data)
+      setMessage(data.message)
+      setButtonClick(false)
+      setDisplayToast(true)
+      setTimeout(() => {
+        window.location.reload()
+        setDisplayToast(false)
+      }, 2000)
+    }).catch(e => {
+      console.log(e)
+    })
+  }
+
+
+
   return (
     <div>
       <section className="section">
@@ -9,6 +79,7 @@ export const StoreLocator = () => {
             Store Locator
           </li>
         </ol>
+        { displayToast && <Toast message={message}/>}
 
         <div className="row">
           <div className="col-12">
@@ -17,108 +88,76 @@ export const StoreLocator = () => {
                 <h4>Add Store Locator</h4>
               </div>
               <div className="card-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group mb-0">
-                      <label>Store Name</label>
-                      <input
-                        type="text"
-                        className="form-control w-100"
-                        name="storeName"
-                        placeholder=""
-                        required
-                      />
+                  <form onSubmit={(e) => handleSubmit(e)}>
+                    <div className="row">
+                    <div className="col-md-6">
+                      <div className="form-group mb-0">
+                        <label>Store Name</label>
+                        <input
+                            type="text"
+                            className="form-control w-100"
+                            name="store_name"
+                            placeholder=""
+                            value={values.store_name}
+                            onChange={handleChange}
+                            required
+                        />
+                      </div>
+                      <div className="form-group mb-3">
+                        <label>Start Time</label>
+                        <input
+                            type="time"
+                            className="form-control"
+                            name='open_time'
+                            value={values.open_time}
+                            onChange={handleChange}
+                            required
+                        />
+                      </div>
+                      <div className="form-group ">
+                        <label>Working Days</label>
+                        <Select
+                            options={work_days}
+                            isMulti
+                            onChange={handleDayChange}
+                            value={days.working_days}
+                        />
+                      </div>
                     </div>
-                    <div className="form-group mb-3">
-                      <label>Start Time</label>
-                      <input type="time" className="form-control" />
+                    <div className="col-md-6">
+                      <div className="form-group mb-0">
+                        <label>Address</label>
+                        <textarea
+                            className="form-control"
+                            name='address'
+                            value={values.address}
+                            onChange={handleChange}
+                            required
+                        ></textarea>
+                      </div>
+                      <div className="form-group">
+                        <label>End Time</label>
+                        <input
+                            type="time"
+                            className="form-control"
+                            name='close_time'
+                            value={values.close_time}
+                            onChange={handleChange}
+                            required
+                        />
+                      </div>
                     </div>
-                    <div className="form-group ">
-                      <label>Working Days</label>
-                      <select
-                        className="form-control select2 w-100"
-                        multiple="multiple"
-                        data-placeholder="Select days"
-                      >
-                        <option>Monday</option>
-                        <option>Tuesday</option>
-                        <option>Wednesday</option>
-                        <option>Thursday</option>
-                        <option>Friday</option>
-                        <option>Saturday</option>
-                        <option>Sunday</option>
-                      </select>
+                    <div className="col-md-6">
+                      <button className="btn btn-primary" disabled={buttonClick}>Save</button>
                     </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="form-group mb-0">
-                      <label>Address</label>
-                      <textarea className="form-control"></textarea>
                     </div>
-                    <div className="form-group">
-                      <label>End Time</label>
-                      <input type="time" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <button className="btn btn-primary">Save</button>
-                  </div>
-                </div>
+                  </form>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-lg-10 col-md-12 col-sm-12 col-xl-12">
-          <div className="card">
-            <div className="card-header border-bottom-0">
-              <h4 className="card-title">Stores</h4>
-            </div>
-            <div className="">
-              <div className="table-responsive border-top">
-                <table className="table card-table table-striped table-vcenter text-nowrap mb-0">
-                  <thead>
-                    <tr>
-                      <th>Store Name</th>
-                      <th>Address</th>
-                      <th>Working Days</th>
-                      <th>Working Hours</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Megan Stores</td>
-                      <td>50 Prince kazeem, Lekki Phase 1, Lagos, Nigeria</td>
-                      <td>Monday, Tuesday, Wednesday</td>
-                      <td className="text-nowrap">8:00 AM - 4:00 PM</td>
-                      <td className="text-center align-middle">
-                        <div className="btn-group align-top">
-                          <button
-                            className="btn btn-sm btn-primary badge"
-                            data-target="#largeModal"
-                            data-toggle="modal"
-                            type="button"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-sm btn-danger badge"
-                            data-target="#largeModal"
-                            data-toggle="modal"
-                            type="button"
-                          >
-                            <i className="fa fa-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+        <StoreLists />
       </section>
     </div>
   );

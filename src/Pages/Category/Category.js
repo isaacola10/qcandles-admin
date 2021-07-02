@@ -1,7 +1,56 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
 import { Link } from "react-router-dom";
+import {CategoryList} from "../../Components/CategoryComponent/CategoryList";
+import {createCategory, getCategories as listCategories} from "../../Controllers/actions/category";
+import {Toast} from "../../Components/FormBuilder/Toast";
 
 export const Category = () => {
+  const dispatch = useDispatch()
+
+  const getCategories = useSelector((state) => state.getCategories)
+  const {categories, loading, error} = getCategories
+  const [values, setValues] = useState({
+    categoryName: ''
+  });
+  const [displayToast, setDisplayToast] = useState(false);
+  const [message, setMessage] = useState(null)
+  const [buttonClick, setButtonClick] = useState(false)
+
+
+  useEffect(() => {
+    dispatch(listCategories())
+
+  }, [dispatch])
+
+  const handleChange = (e) => {
+    e.preventDefault()
+    setValues({
+      ...values,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setButtonClick(true)
+
+    const {categoryName} = values
+    dispatch(createCategory(categoryName)).then(data => {
+      setMessage(data.message)
+      setButtonClick(false)
+      setDisplayToast(true)
+      setTimeout(() => {
+        window.location.reload()
+        setDisplayToast(false)
+      }, 2000)
+      console.log(data)
+    }).catch(error => {
+      console.log(error)
+    })
+  }
+
+
   return (
     <div>
       <section className="section">
@@ -10,6 +59,7 @@ export const Category = () => {
             <Link to="#">Category</Link>
           </li>
         </ol>
+        {displayToast && <Toast message={message}/>}
 
         <div className="row">
           <div className="col-6">
@@ -18,63 +68,40 @@ export const Category = () => {
                 <h4>Create Category</h4>
               </div>
               <div className="card-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group mb-0">
-                      <label>Category Name</label>
-                      <input
-                        type="text"
-                        className="form-control w-100"
-                        name="storeName"
-                        placeholder="Scented Candles"
-                        required
-                      />
+                <form onSubmit={(e) => handleSubmit(e)}>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="form-group mb-0">
+                        <label>Category Name</label>
+                        <input
+                            type="text"
+                            className="form-control w-100"
+                            name="categoryName"
+                            placeholder="Scented Candles"
+                            value={values.categoryName}
+                            onChange={handleChange}
+                            required
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="mt-4">
-                  <button className="btn btn-primary">Save</button>
-                </div>
+                  <div className="mt-4">
+                    <button className="btn btn-primary">Save</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
-
-        <div className="col-lg-6 col-md-12 col-sm-12 col-xl-6">
-          <div className="card">
-            <div className="card-header border-bottom-0">
-              <h4 className="card-title">Categories</h4>
-            </div>
-            <div className="">
-              <div className="table-responsive border-top">
-                <table className="table card-table table-striped table-vcenter text-nowrap mb-0">
-                  <thead>
-                    <tr>
-                      <th>Category Name</th> <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Scented Candles</td>
-                      <td className="text-center align-middle">
-                        <div className="btn-group align-top">
-                          <button
-                            className="btn btn-sm btn-danger badge"
-                            data-target="#largeModal"
-                            data-toggle="modal"
-                            type="button"
-                          >
-                            <i className="fa fa-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+        {loading ? (
+            <div>Loading...</div>
+        ) : error ? (
+            <div>{error}</div>
+        ) : categories ? (
+            <CategoryList categories={categories} />
+        ) : (
+            <div>No Categories</div>
+        )}
       </section>
     </div>
   );

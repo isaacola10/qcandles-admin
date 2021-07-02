@@ -1,7 +1,54 @@
-import React from "react";
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from "react-redux";
 import { Link } from "react-router-dom";
+import {createShipping} from "../../Controllers/actions/shipping";
+import {Toast} from "../../Components/FormBuilder/Toast";
+import {ShippingList} from "../../Components/Shippings/ShippingList";
 
 export const ShippingFee = () => {
+  const dispatch = useDispatch();
+
+  const [values, setValues] = useState({
+    state: '',
+    area: '',
+    fee: ''
+  })
+  const [displayToast, setDisplayToast] = useState(false);
+  const [message, setMessage] = useState(null)
+  const [buttonClick, setButtonClick] = useState(false)
+
+  const handleChange = (e) => {
+    setValues({
+      ...values,
+      [e.target.name]:e.target.value
+    })
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    const {state, area, fee} = values
+    const formData = {
+      state: state,
+      area: area,
+      fee: fee
+    }
+
+    setButtonClick(true)
+    dispatch(createShipping(formData)).then(data => {
+      console.log(data)
+      setMessage(data.message)
+      setButtonClick(false)
+      setDisplayToast(true)
+      setTimeout(() => {
+        window.location.reload()
+        setDisplayToast(false)
+      }, 2000)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
   return (
     <div>
       <section className="section">
@@ -11,6 +58,8 @@ export const ShippingFee = () => {
           </li>
         </ol>
 
+        { displayToast && <Toast message={message}/>}
+
         <div className="row">
           <div className="col-6">
             <div className="card">
@@ -18,88 +67,56 @@ export const ShippingFee = () => {
                 <h4>Create Shipping Fee</h4>
               </div>
               <div className="card-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group mb-3">
-                      <label>State</label>
-                      <select className="form-control w-100">
-                        <option>Lagos</option>
-                        <option>Abuja</option>
-                        <option>Rivers</option>
-                        <option>Ogun</option>
-                        <option>Ibadan</option>
-                      </select>
-                    </div>
-                    <div className="form-group mb-3">
-                      <label>Area</label>
-                      <input
-                        type="text"
-                        className="form-control w-100"
-                        name=""
-                        placeholder="Ikeja"
-                        required
-                      />
-                    </div>
-                    <div className="form-group mb-0">
-                      <label>Fee</label>
-                      <input
-                        type="text"
-                        className="form-control w-100"
-                        name=""
-                        placeholder="3000"
-                        required
-                      />
+                <form onSubmit={(e) => handleSubmit(e)}>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="form-group mb-3">
+                        <label>State</label>
+                        <select className="form-control w-100" name='state' value={values.state} onChange={handleChange}>
+                          <option value=''>Select state</option>
+                          <option value='Lagos'>Lagos</option>
+                          <option value='Abuja'>Abuja</option>
+                          <option value='Rivers'>Rivers</option>
+                          <option value='Ogun'>Ogun</option>
+                          <option value='Ibadan'>Ibadan</option>
+                        </select>
+                      </div>
+                      <div className="form-group mb-3">
+                        <label>Area</label>
+                        <input
+                            type="text"
+                            className="form-control w-100"
+                            name="area"
+                            value={values.area}
+                            onChange={handleChange}
+                            placeholder="Ikeja"
+                            required
+                        />
+                      </div>
+                      <div className="form-group mb-0">
+                        <label>Fee</label>
+                        <input
+                            type="number"
+                            className="form-control w-100"
+                            name="fee"
+                            value={values.fee}
+                            onChange={handleChange}
+                            placeholder="3000"
+                            required
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="mt-4">
-                  <button className="btn btn-primary">Add Fee</button>
-                </div>
+                  <div className="mt-4">
+                    <button className="btn btn-primary" disabled={buttonClick} type='submit'>Add Fee</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-lg-6 col-md-12 col-sm-12 col-xl-6">
-          <div className="card">
-            <div className="card-header border-bottom-0">
-              <h4 className="card-title">Shipping Fees</h4>
-            </div>
-            <div className="">
-              <div className="table-responsive border-top">
-                <table className="table card-table table-striped table-vcenter text-nowrap mb-0">
-                  <thead>
-                    <tr>
-                      <th>State</th>
-                      <th>Area</th>
-                      <th>Fee</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Lagos</td>
-                      <td>Ikeja</td>
-                      <td>3000</td>
-                      <td className="text-center align-middle">
-                        <div className="btn-group align-top">
-                          <button
-                            className="btn btn-sm btn-danger badge"
-                            data-target="#largeModal"
-                            data-toggle="modal"
-                            type="button"
-                          >
-                            <i className="fa fa-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ShippingList />
       </section>
     </div>
   );
