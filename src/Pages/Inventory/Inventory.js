@@ -10,7 +10,7 @@ export const Inventory = () => {
           <li className="breadcrumb-item active" aria-current="page">
             Products
           </li>
-          <li className="ml-auto d-lg-flex d-none">
+          <li className="ml-auto">
             <span className="float-left border-">
               <Link
                 className="btn btn-primary"
