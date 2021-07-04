@@ -3,6 +3,13 @@ import {useDispatch} from "react-redux";
 import {createProduct} from "../../Controllers/actions/product";
 import {Category} from "../FormBuilder/Category";
 import {Toast} from "../FormBuilder/Toast";
+import {BeatLoader} from "react-spinners";
+import { css } from "@emotion/react";
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: #fff;
+`;
 
 export const InventoryForm = () => {
     const dispatch = useDispatch()
@@ -16,6 +23,8 @@ export const InventoryForm = () => {
     });
     const [displayToast, setDisplayToast] = useState(false);
     const [message, setMessage] = useState(null)
+    let [loaded, setLoading] = useState(false);
+    let [color, setColor] = useState("#ffffff");
     const [buttonClick, setButtonClick] = useState(false)
     const [image, setImage] = useState({
         product_image: ''
@@ -38,10 +47,8 @@ export const InventoryForm = () => {
     const saveProduct = (e) => {
         e.preventDefault()
 
-        setButtonClick(true)
         const {category_id, product_name, product_price, product_quantity, product_description} = values
         const {product_image} = image
-        console.log(product_image)
 
         const formData = new FormData()
         formData.append('category_id', category_id);
@@ -51,15 +58,19 @@ export const InventoryForm = () => {
         formData.append('quantity',product_quantity );
         formData.append('description', product_description);
 
-
-
+        setButtonClick(true)
+        setLoading(true)
         dispatch(createProduct(formData)).then(data => {
             setValues({
                 category_id:'', product_name: '', product_price: '', product_quantity: '', product_description: ''
             })
+            setLoading(false)
             setButtonClick(false)
             setDisplayToast(data.isConfirmed)
             setMessage(data.message)
+            setTimeout(() => {
+                setDisplayToast(false)
+            }, 3000)
         }).catch(e => {
             console.log(e)
         })
@@ -160,7 +171,12 @@ export const InventoryForm = () => {
                                     className="btn btn-primary mt-4"
                                     type="submit"
                                     disabled={buttonClick}
-                                >Create Product</button>
+                                >
+                                    <div className="row">
+                                        <span className='pr-2'>Create Product</span>
+                                        <BeatLoader color={color} loading={loaded} css={override} size={15} />
+                                    </div>
+                                </button>
                             </form>
                         </div>
                     </div>
