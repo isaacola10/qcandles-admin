@@ -1,7 +1,31 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
+import {useSelector, useDispatch} from 'react-redux'
 import { Link } from "react-router-dom";
+import {fetchOrders, selectAllOrders} from "../../Controllers/reducers/order";
+import {OrdersList} from "../../Components/OrderComponent/OrdersList";
 
 export const Orders = () => {
+  const dispatch = useDispatch()
+  const orders = useSelector(selectAllOrders)
+  const orderStatus = useSelector((state) => state.orders.status)
+  const error = useSelector((state) => state.orders.errors)
+
+  useEffect(() => {
+    if(orderStatus === 'idle') {
+      dispatch(fetchOrders())
+    }
+  }, [orderStatus, dispatch])
+
+  let content
+
+  if(orderStatus === 'loading') {
+    content = <div className='loading'>Loading</div>
+  }else if (orderStatus === 'succeeded') {
+    content = <OrdersList orders={orders}/>
+  }else if (orderStatus === 'error') {
+    content = <div>{error}</div>
+  }
+
   return (
     <div>
       <section className="section">
@@ -30,58 +54,12 @@ export const Orders = () => {
                             <th>Quantity</th>
                             <th>Total Amount</th>
                             <th>Customer Name</th>
-                            <th>Date</th>
+                            <th>Date Ordered</th>
                             <th className="text-center">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td className="align-middle text-center">
-                              <div className="custom-control custom-control-inline custom-checkbox custom-control-nameless m-0 align-top">
-                                <input
-                                  className="custom-control-input"
-                                  id="item-1"
-                                  type="checkbox"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  for="item-1"
-                                ></label>
-                              </div>
-                            </td>
-                            <td className="align-middle text-center">
-                              <img
-                                alt=""
-                                className="avatar avatar-md rounded-circle"
-                                src="assets/img/avatar/avatar-1.jpeg"
-                              />
-                            </td>
-                            <td className="text-nowrap align-middle">
-                              Adam Cotter
-                            </td>
-                            <td className="text-nowrap align-middle">
-                              <span>7</span>
-                            </td>
-                            <td className="text-nowrap align-middle">
-                              <span>7500</span>
-                            </td>
-                            <td className="text-nowrap align-middle">
-                              <span>Tonye Greene</span>
-                            </td>
-                            <td className="text-nowrap align-middle">
-                              <span>12 Jan 2018</span>
-                            </td>
-                            <td className="text-center align-middle">
-                              <div className="btn-group align-top">
-                                <Link
-                                  className="btn btn-sm btn-primary badge"
-                                  to="/single-order"
-                                >
-                                  View details
-                                </Link>
-                              </div>
-                            </td>
-                          </tr>
+                        {content}
                         </tbody>
                       </table>
                     </div>

@@ -37,7 +37,7 @@ export const ProductList = (props) => {
         <>
         {
             loading ? (
-                <div></div>
+                <div>Loading...</div>
             ) : error ? (
                 <div>{error}</div>
             ) : products && products.length!==0 ? (
@@ -58,7 +58,7 @@ export const ProductList = (props) => {
                                                     <th className="text-center"></th>
                                                     <th className="text-center">Image</th>
                                                     <th>Product Name</th>
-                                                    <th>Category</th>
+                                                    <th>Collection</th>
                                                     <th>Quantity</th>
                                                     <th>Price</th>
                                                     <th className="text-center">Actions</th>
@@ -92,7 +92,7 @@ export const ProductList = (props) => {
                                                             {product.product_name}
                                                         </td>
                                                         <td className="text-nowrap align-middle">
-                                                            {product.category ? product.category.category_name : 'None'}
+                                                            {product.collection ? product.collection.title : 'None'}
                                                         </td>
                                                         <td className="text-nowrap align-middle">
                                                             <span>{product.quantity}</span>

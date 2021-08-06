@@ -1,12 +1,39 @@
-import React, {useState} from 'react';
-import {useDispatch} from "react-redux";
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from "react-redux";
 import { Link } from "react-router-dom";
 import {createShipping} from "../../Controllers/actions/shipping";
 import {Toast} from "../../Components/FormBuilder/Toast";
 import {ShippingList} from "../../Components/Shippings/ShippingList";
+import {createLocation, fetchLocations, selectAllLocation} from "../../Controllers/reducers/shipping";
+import {unwrapResult} from "@reduxjs/toolkit";
 
 export const ShippingFee = () => {
   const dispatch = useDispatch();
+  const locations = useSelector(selectAllLocation)
+  const locationStatus = useSelector((state) => state.locations.status)
+  const error = useSelector((state) => state.locations.error)
+
+  const [addRequestStatus, setAddRequestStatus] = useState('idle')
+
+  useEffect(() => {
+    if(locationStatus === 'idle'){
+      dispatch(fetchLocations())
+    }
+  }, [locationStatus, dispatch]);
+
+  let content
+
+  if(locationStatus === 'idle'){
+    content = <div className='loader'>Loading...</div>
+  }else if (locationStatus === 'succeeded'){
+    const orderedLocations = locations
+      .slice()
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+    content = <ShippingList locations={orderedLocations} />
+  }else if (locationStatus === 'error') {
+    content = <div>{error}</div>
+  }
+
 
   const [values, setValues] = useState({
     state: '',
@@ -24,7 +51,8 @@ export const ShippingFee = () => {
     })
   }
 
-  const handleSubmit = (e) => {
+  const canSave = [values].every(Boolean) && addRequestStatus === 'idle'
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     const {state, area, fee} = values
@@ -33,20 +61,27 @@ export const ShippingFee = () => {
       area: area,
       fee: fee
     }
+    if (canSave) {
+      try {
+        setAddRequestStatus('pending')
+        const resultAction = await dispatch(
+          createLocation(formData)
+        )
+        unwrapResult(resultAction)
+        setValues({
+          state: '',
+          area: '',
+          fee: ''
+        })
+      }catch (e) {
+        console.log(e)
+      }finally {
+        setAddRequestStatus('idle')
+      }
+    }
 
-    setButtonClick(true)
-    dispatch(createShipping(formData)).then(data => {
-      console.log(data)
-      setMessage(data.message)
-      setButtonClick(false)
-      setDisplayToast(true)
-      setTimeout(() => {
-        window.location.reload()
-        setDisplayToast(false)
-      }, 2000)
-    }).catch(err => {
-      console.log(err)
-    })
+
+
   }
 
   return (
@@ -108,15 +143,14 @@ export const ShippingFee = () => {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <button className="btn btn-primary" disabled={buttonClick} type='submit'>Add Fee</button>
+                    <button className="btn btn-primary" disabled={!canSave} type='submit'>Add Fee</button>
                   </div>
                 </form>
               </div>
             </div>
           </div>
         </div>
-
-        <ShippingList />
+        {content}
       </section>
     </div>
   );

@@ -5,7 +5,8 @@ export const getProducts = () => async (dispatch) => {
     try {
         dispatch({ type: types.GET_PRODUCTS_REQUEST })
 
-        const { data } = await axios.get('https://qcandlesapi.herokuapp.com/api/products');
+        // const { data } = await axios.get('https://qcandlesapi.herokuapp.com/api/products');
+        const { data } = await axios.get('http://localhost:8000/api/products');
 
         dispatch({
             type: types.GET_PRODUCTS_SUCCESS,
@@ -26,7 +27,8 @@ export const getProductDetails = (uuid) => async (dispatch) => {
     try {
         dispatch({ type: types.GET_PRODUCT_REQUEST })
 
-        const { data } = await axios.get(`https://qcandlesapi.herokuapp.com/api/product/${uuid}`)
+        // const { data } = await axios.get(`https://qcandlesapi.herokuapp.com/api/product/${uuid}`)
+        const { data } = await axios.get(`http://localhost:8000/api/product/${uuid}`)
 
         dispatch({
             type: types.GET_PRODUCT_SUCCESS,
@@ -48,8 +50,9 @@ export const createProduct = (formData) => async (dispatch) => {
     try{
         dispatch({ type: types.CREATE_PRODUCT_REQUEST })
 
-        const { data } = await axios.post('https://qcandlesapi.herokuapp.com/api/product', formData)
-
+        // const { data } = await axios.post('https://qcandlesapi.herokuapp.com/api/product', formData)
+        const { data } = await axios.post('http://localhost:8000/api/product', formData)
+        //
         dispatch({
             type: types.CREATE_PRODUCT_SUCCESS,
             payload: data
@@ -65,7 +68,8 @@ export const updateProduct = (uuid, formData) => async (dispatch) => {
     try {
         dispatch({ type: types.UPDATE_PRODUCT_REQUEST})
 
-        const { data } = await axios.put(`https://qcandlesapi.herokuapp.com/api/product/${uuid}`, formData);
+        // const { data } = await axios.put(`https://qcandlesapi.herokuapp.com/api/product/${uuid}`, formData);
+        const { data } = await axios.put(`http://localhost:8000/api/product/${uuid}`, formData);
         dispatch({
             type: types.UPDATE_PRODUCT_SUCCESS,
             payload: {uuid, data}
@@ -80,6 +84,7 @@ export const updateProduct = (uuid, formData) => async (dispatch) => {
 export const deleteProduct = (uuid) => async (dispatch) => {
     try {
         const {data} = await axios.delete(`https://qcandlesapi.herokuapp.com/api/product/${uuid}`)
+        // const {data} = await axios.delete(`http://localhost:8000/api/product/${uuid}`)
         console.log(data)
         dispatch({
             type: types.DELETE_PRODUCT,

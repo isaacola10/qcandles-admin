@@ -1,9 +1,10 @@
 import React, {useState} from "react";
 import Select from 'react-select'
 import {useDispatch} from "react-redux";
-import {createStore} from "../../Controllers/actions/storelocator";
 import {Toast} from "../../Components/FormBuilder/Toast";
 import {StoreLists} from "../../Components/StoreLocator/StoreLists";
+import {createStore} from "../../Controllers/reducers/storelocator";
+import {unwrapResult} from "@reduxjs/toolkit";
 
 export const StoreLocator = () => {
   const dispatch = useDispatch()
@@ -22,6 +23,7 @@ export const StoreLocator = () => {
   const [displayToast, setDisplayToast] = useState(false);
   const [message, setMessage] = useState(null)
   const [buttonClick, setButtonClick] = useState(false)
+  const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
   const handleDayChange = (days) => {
     setDays(newArray.concat(days))
@@ -41,10 +43,10 @@ export const StoreLocator = () => {
     })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const canSave = [values].every(Boolean) && addRequestStatus === 'idle'
 
-    console.log(days)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
 
     const {store_name, address, open_time, close_time} = values
     const formData = {
@@ -54,19 +56,26 @@ export const StoreLocator = () => {
       close_time: close_time,
       working_days: days,
     }
-    setButtonClick(true)
-    dispatch(createStore(formData)).then(data => {
-      console.log(data)
-      setMessage(data.message)
-      setButtonClick(false)
-      setDisplayToast(true)
-      setTimeout(() => {
-        window.location.reload()
-        setDisplayToast(false)
-      }, 2000)
-    }).catch(e => {
-      console.log(e)
-    })
+    if(canSave) {
+      try {
+        setAddRequestStatus('pending')
+        const resultAction = await dispatch(
+          createStore(formData)
+        )
+        unwrapResult(resultAction)
+        setValues({
+          store_name: '',
+          address: '',
+          open_time: '',
+          close_time: '',
+        })
+        setDays([])
+      }catch (e) {
+        console.log(e)
+      }finally {
+        setAddRequestStatus('idle')
+      }
+    }
   }
 
 
@@ -162,3 +171,4 @@ export const StoreLocator = () => {
     </div>
   );
 };
+

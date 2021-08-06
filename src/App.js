@@ -16,6 +16,8 @@ import { ShippingFee } from "./Pages/Shipping/ShippingFee";
 import { Coupon } from "./Pages/Discount/Coupon";
 import {InventoryForm} from "./Components/InventoryComponents/Inventory-Form";
 import {EditForm} from "./Components/InventoryComponents/Edit-Form";
+import {Fragrance} from "./Pages/Fragrance/Fragrance";
+import Collection from "./Pages/Collection/Collection";
 
 function App() {
   return (
@@ -54,6 +56,12 @@ function App() {
               </Route>
               <Route path="/category" exact>
                 <Category />
+              </Route>
+              <Route path="/fragrances" exact>
+                <Fragrance />
+              </Route>
+              <Route path="/collections" exact>
+                <Collection />
               </Route>
               <Route path="/coupon" exact>
                 <Coupon />

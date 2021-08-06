@@ -1,10 +1,14 @@
-import React, {useState} from 'react';
-import {useDispatch} from "react-redux";
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from "react-redux";
 import {createProduct} from "../../Controllers/actions/product";
-import {Category} from "../FormBuilder/Category";
 import {Toast} from "../FormBuilder/Toast";
 import {BeatLoader} from "react-spinners";
 import { css } from "@emotion/react";
+import Collections from "../FormBuilder/Collections";
+import {Fragrances} from "../FormBuilder/Fragrances";
+import {fetchFragrances, selectAllFragrances} from "../../Controllers/reducers/fragrance";
+import MultiSelect from "react-multi-select-component";
+import {AddFragrance} from "./AddFragrance";
 const override = css`
   display: block;
   margin: 0 auto;
@@ -13,9 +17,47 @@ const override = css`
 
 export const InventoryForm = () => {
     const dispatch = useDispatch()
+    const [selected, setSelected] = useState([])
+
+    const [listFragrances, setListFragrances] = useState([{fragrance: '', description: ''}])
+    const [listFeatures, setListFeatures] = useState([{type: '', price: ''}])
+
+    const handleFragranceChange = event => {
+        const _tempFrag = [...listFragrances];
+        _tempFrag[event.target.dataset.id][event.target.name] = event.target.value;
+        //
+        setListFragrances(_tempFrag)
+    }
+
+    const handleFeatureChange = event => {
+        const _tempFeat = [...listFeatures]
+        _tempFeat[event.target.dataset.id][event.target.name] = event.target.value
+
+        setListFeatures(_tempFeat)
+    }
+
+    const addNewFeature = () => {
+        setListFeatures(prevFeat => [...prevFeat, {type: '', price: ''}])
+    }
+
+    const addNewFragrance = () => {
+        setListFragrances(prevFrag => [...prevFrag, {fragrance: '', description: ''}])
+    }
+
+    const fragrances = useSelector(selectAllFragrances)
+    const options = fragrances.map((fragrance) => (
+      { label: fragrance.title, value: fragrance.id }
+    ))
+    const fragranceStatus = useSelector((state) => state.fragrances.status)
+    const error = useSelector((state) => state.fragrances.error)
+    useEffect(() => {
+        if(fragranceStatus === 'idle') {
+            dispatch(fetchFragrances())
+        }
+    }, [fragranceStatus, dispatch])
 
     const [values, setValues] = useState({
-        category_id: '',
+        collection_id: '',
         product_name: '',
         product_price: '',
         product_quantity: '',
@@ -47,23 +89,30 @@ export const InventoryForm = () => {
     const saveProduct = (e) => {
         e.preventDefault()
 
-        const {category_id, product_name, product_price, product_quantity, product_description} = values
+        const {collection_id, product_name, product_price, product_quantity, product_description} = values
         const {product_image} = image
 
-        const formData = new FormData()
-        formData.append('category_id', category_id);
-        formData.append('product_name', product_name);
-        formData.append('price', product_price);
-        formData.append('product_image', product_image);
-        formData.append('quantity',product_quantity );
-        formData.append('description', product_description);
+        const formData = {
+            fragrance_id: listFragrances,
+            features: listFeatures,
+            collection_id: collection_id,
+            product_name: product_name,
+            price: product_price,
+            product_image: product_image,
+            quantity: product_quantity,
+            description: product_description,
+        }
+        // console.log(formData)
 
         setButtonClick(true)
         setLoading(true)
         dispatch(createProduct(formData)).then(data => {
+            console.log(data)
             setValues({
-                category_id:'', product_name: '', product_price: '', product_quantity: '', product_description: ''
+                collection_id:'', product_name: '', product_price: '', product_quantity: '', product_description: ''
             })
+            setListFragrances([{fragrance: '', description: ''}])
+            setListFeatures([{type: '', price: ''}])
             setLoading(false)
             setButtonClick(false)
             setDisplayToast(data.isConfirmed)
@@ -110,18 +159,67 @@ export const InventoryForm = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Categories</label>
+                                    <label>Collections</label>
                                     <select
-                                        className="form-control"
-                                        data-placeholder="Scented Candles"
-                                        name="category_id"
-                                        onChange={handleChange}
-                                        value={values.category_id}
+                                      className="form-control"
+                                      data-placeholder="Scented Candles"
+                                      name="collection_id"
+                                      onChange={handleChange}
+                                      value={values.collection_id}
                                     >
-                                        <option>Select a category</option>
-                                        <Category />
+                                        <option>Select a collection</option>
+                                        <Collections />
                                     </select>
                                 </div>
+                                <div className="form-group">
+                                    <label>
+                                        Fragrances
+                                        <button type="button" onClick={addNewFragrance} className="btn btn-sm btn-outline-success mx-2"><i className="fa fa-plus"></i></button>
+                                    </label>
+                                    {listFragrances.map((item, index) => (
+                                      <div className="row my-2" >
+                                          <div className="col-6">
+                                              <select className='form-control' data-id={index} name="fragrance" onChange={handleFragranceChange} value={item.fragrance}>
+                                                  <option>Select Fragrance</option>
+                                                  {fragrances.map((fragrance) => (
+                                                    <option key={fragrance.id} value={fragrance.id}>{fragrance.title}</option>
+                                                  ))}
+                                              </select>
+                                          </div>
+                                          <div className="col-6">
+                                              <input type="text" name="description" data-id={index} onChange={handleFragranceChange} value={item.description} className="form-control p-3" placeholder="Fragrance Description"/>
+                                          </div>
+                                      </div>
+                                    ))}
+                                </div>
+                                <div className="form-group">
+                                    <label>
+                                        Category
+                                        <button type="button" onClick={addNewFeature} className="btn btn-sm btn-outline-success mx-2"><i className="fa fa-plus"></i></button>
+                                    </label>
+                                    {listFeatures.map((item, index) => (
+                                      <div className="row my-2" >
+                                          <div className="col-6">
+                                              <select className='form-control' data-id={index} name="type" onChange={handleFeatureChange} value={item.type}>
+                                                  <option>Select Type</option>
+                                                  <option value='scented'>Scented</option>
+                                                  <option value='non-scented'>Non-Scented</option>
+                                              </select>
+                                          </div>
+                                          <div className="col-6">
+                                              <input type="number" name="price" data-id={index} onChange={handleFeatureChange} value={item.price} className="form-control p-3" placeholder="Price"/>
+                                          </div>
+                                      </div>
+                                    ))}
+                                </div>
+                                {/*<div className="form-group">*/}
+                                {/*    <label>Fragrances</label>*/}
+                                {/*    <MultiSelect*/}
+                                {/*      options={options}*/}
+                                {/*      value={selected}*/}
+                                {/*      onChange={setSelected}*/}
+                                {/*      labelledBy='Select' />*/}
+                                {/*</div>*/}
                                 <div className="form-group">
                                     <label htmlFor="recipient-name" className="form-control-label">
                                         Price:

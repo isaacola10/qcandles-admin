@@ -37,10 +37,22 @@ export const SideBar = () => {
             <span className="side-menu__label">Store Locator</span>
           </Link>
         </li>
+        {/*<li>*/}
+        {/*  <Link className="side-menu__item" to="/category">*/}
+        {/*    <i className="side-menu__icon fa fa fa-tags"></i>*/}
+        {/*    <span className="side-menu__label">Category</span>*/}
+        {/*  </Link>*/}
+        {/*</li>*/}
         <li>
-          <Link className="side-menu__item" to="/category">
+          <Link className="side-menu__item" to="/fragrances">
             <i className="side-menu__icon fa fa fa-tags"></i>
-            <span className="side-menu__label">Category</span>
+            <span className="side-menu__label">Fragrance</span>
+          </Link>
+        </li>
+        <li>
+          <Link className="side-menu__item" to="/collections">
+            <i className="side-menu__icon fa fa fa-tags"></i>
+            <span className="side-menu__label">Collection</span>
           </Link>
         </li>
         <li>

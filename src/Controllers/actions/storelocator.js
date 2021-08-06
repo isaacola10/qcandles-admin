@@ -5,7 +5,8 @@ export const getStores = () => async (dispatch) => {
     try {
         dispatch({type: types.GET_STORES_REQUEST})
 
-        const { data } = await axios.get('https://qcandlesapi.herokuapp.com/api/stores');
+        // const { data } = await axios.get('https://qcandlesapi.herokuapp.com/api/stores');
+        const { data } = await axios.get('http://localhost:8000/api/stores');
         dispatch({
             type: types.GET_STORES_SUCCESS,
             payload: data
@@ -25,7 +26,8 @@ export const getStore = (uuid) => async (dispatch) => {
     try {
         dispatch({type: types.GET_STORE_REQUEST})
 
-        const {data} = await axios.get(`https://qcandlesapi.herokuapp.com/api/store/${uuid}`);
+        // const {data} = await axios.get(`https://qcandlesapi.herokuapp.com/api/store/${uuid}`);
+        const {data} = await axios.get(`http://localhost:8000/api/store/${uuid}`);
         dispatch({
             type: types.GET_STORE_SUCCESS,
             payload: data
@@ -45,7 +47,8 @@ export const createStore = (formData) => async (dispatch) => {
     try {
         dispatch({type: types.CREATE_STORE_REQUEST})
 
-        const {data} = await axios.post('https://qcandlesapi.herokuapp.com/api/store', formData);
+        // const {data} = await axios.post('https://qcandlesapi.herokuapp.com/api/store', formData);
+        const {data} = await axios.post('http://localhost:8000/api/store', formData);
         dispatch({
             type: types.CREATE_STORE_SUCCESS,
             payload: data
@@ -67,7 +70,8 @@ export const updateStore = (formData, uuid) => async (dispatch) => {
     try {
         dispatch({type: types.UPDATE_STORE_REQUEST})
 
-        const {data} = await axios.put(`https://qcandlesapi.herokuapp.com/api/store/${uuid}`, formData);
+        // const {data} = await axios.put(`https://qcandlesapi.herokuapp.com/api/store/${uuid}`, formData);
+        const {data} = await axios.put(`http://localhost:8000/api/store/${uuid}`, formData);
         dispatch({
             type: types.UPDATE_STORE_SUCCESS,
             payload: {uuid, data}
@@ -87,7 +91,8 @@ export const updateStore = (formData, uuid) => async (dispatch) => {
 
 export const deleteStore = (uuid) => async (dispatch) => {
     try {
-        const {data} = await axios.delete(`https://qcandlesapi.herokuapp.com/api/store/${uuid}`)
+        // const {data} = await axios.delete(`https://qcandlesapi.herokuapp.com/api/store/${uuid}`)
+        const {data} = await axios.delete(`http://localhost:8000/api/store/${uuid}`)
         console.log(data)
         dispatch({
             type: types.DELETE_STORE,

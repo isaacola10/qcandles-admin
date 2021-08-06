@@ -9,9 +9,13 @@ import {
     updateProductReducer
 } from "./reducers/product";
 import {getCategoriesReducer} from "./reducers/category";
-import {createStoreReducer, getStoreReducer, getStoresReducer, updateStoreReducer} from "./reducers/storelocator";
-import {createShippingReducer, getShippingsReducer} from "./reducers/shipping";
 import {createDiscountReducer, getDiscountsReducer} from "./reducers/discount";
+
+import fragrancesReducer from '../Controllers/reducers/fragrance'
+import collectionsReducer from '../Controllers/reducers/collection'
+import storesReducer from '../Controllers/reducers/storelocator'
+import locationsReducer from '../Controllers/reducers/shipping'
+import ordersReducer from '../Controllers/reducers/order'
 
 const reducer = combineReducers({
     getCategories: getCategoriesReducer,
@@ -21,16 +25,15 @@ const reducer = combineReducers({
     createProducts: createProductReducer,
     updateProductReducer,
 
-    getStores: getStoresReducer,
-    getStore: getStoreReducer,
-    createStore: createStoreReducer,
-    updateStore: updateStoreReducer,
-
-    getShippings: getShippingsReducer,
-    createShipping: createShippingReducer,
-
     getDiscounts: getDiscountsReducer,
     createDiscount: createDiscountReducer,
+
+    fragrances: fragrancesReducer,
+    collections: collectionsReducer,
+    stores: storesReducer,
+    locations: locationsReducer,
+    orders: ordersReducer
+
 })
 
 const middleware = [thunk]

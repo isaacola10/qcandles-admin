@@ -1,60 +1,43 @@
-import * as types from '../types/shipping'
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import axios from "axios";
 
-export const getShippingsReducer = (state = { shippings:[] }, action) => {
-    const {type, payload} = action
+export const fetchLocations = createAsyncThunk(
+  'locations/fetchLocations',
+  async () => {
+     const {data} = await axios.get('http://localhost:8000/api/shippings')
+    return data
+  }
+)
 
-    switch (type){
-        case types.GET_SHIPPINGS_REQUEST:
-            return{
-                loading: true,
-                shippings: []
-            }
-        case types.GET_SHIPPINGS_SUCCESS:
-            return {
-                loading: false,
-                shippings: payload
-            }
-        case types.GET_SHIPPINGS_FAIL:
-            return {
-                loading: false,
-                error: payload
-            }
-        default:
-            return state
+export const createLocation = createAsyncThunk(
+  'locations/createLocation',
+  async (formData) => {
+    const response = await axios.post('http://localhost:8000/api/shipping', formData);
+    return response.data.status
+  }
+)
+
+export const locationSlice = createSlice({
+  name: 'locations',
+  initialState: {locations:[], status:'idle', error:{}},
+  reducers:{},
+  extraReducers:{
+    [fetchLocations.pending]: (state) => {
+      state.status = 'loading'
+    },
+    [fetchLocations.fulfilled]: (state, action) => {
+      state.status = 'succeeded'
+      state.locations = state.locations.concat(action.payload)
+    },
+    [fetchLocations.rejected]: (state, action) => {
+      state.status = 'error'
+      state.error = action.payload
+    },
+    [createLocation.fulfilled]: (state, action) => {
+      state.locations.push(action.payload)
     }
-}
+  }
+})
 
-export const createShippingReducer = (state = { shipping: {} }, action) => {
-    const {type, payload} = action
-
-    switch (type) {
-        case types.CREATE_SHIPPING_REQUEST:
-            return{
-                loading: true,
-            }
-        case types.CREATE_SHIPPING_SUCCESS:
-            return {
-                loading: false,
-                ...state,
-                shipping: payload
-            }
-        case types.CREATE_SHIPPING_FAIL:
-            return {
-                loading: false,
-                error: payload
-            }
-        default:
-            return state
-    }
-}
-
-export const deleteShippingReducer = (state = { shippings: [] }, action) => {
-    const {type, payload} = action
-
-    switch (type) {
-        case types.DELETE_SHIPPING:
-            return state.shippings.filter(({uuid}) => uuid !== payload.uuid)
-        default:
-            return state
-    }
-}
+export const selectAllLocation = (state) => state.locations.locations
+export default locationSlice.reducer

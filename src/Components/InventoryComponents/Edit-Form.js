@@ -5,6 +5,10 @@ import { useSelector, useDispatch } from "react-redux";
 import {getProductDetails, updateProduct} from "../../Controllers/actions/product";
 import {Category} from "../FormBuilder/Category";
 import {Toast} from "../FormBuilder/Toast";
+import {Fragrances} from "../FormBuilder/Fragrances";
+import Collections from "../FormBuilder/Collections";
+import {fetchFragrances, selectAllFragrances} from "../../Controllers/reducers/fragrance";
+import MultiSelect from "react-multi-select-component";
 const override = css`
   display: block;
   margin: 0 auto;
@@ -16,8 +20,47 @@ export const EditForm = ({match}) => {
     let [color, setColor] = useState("#ffffff");
 
     const dispatch = useDispatch()
+    const [selected, setSelected] = useState([])
+
+    const [listFragrances, setListFragrances] = useState([{fragrance: '', description: ''}])
+    const [listFeatures, setListFeatures] = useState([{type: '', price: ''}])
+
+    const handleFragranceChange = event => {
+        const _tempFrag = [...listFragrances];
+        _tempFrag[event.target.dataset.id][event.target.name] = event.target.value;
+        //
+        setListFragrances(_tempFrag)
+    }
+
+    const handleFeatureChange = event => {
+        const _tempFeat = [...listFeatures]
+        _tempFeat[event.target.dataset.id][event.target.name] = event.target.value
+
+        setListFeatures(_tempFeat)
+    }
+
+    const addNewFeature = () => {
+        setListFeatures(prevFeat => [...prevFeat, {type: '', price: ''}])
+    }
+
+    const addNewFragrance = () => {
+        setListFragrances(prevFrag => [...prevFrag, {fragrance: '', description: ''}])
+    }
+
+    const fragrances = useSelector(selectAllFragrances)
+    const options = fragrances.map((fragrance) => (
+      { label: fragrance.title, value: fragrance.id }
+    ))
+    const fragranceStatus = useSelector((state) => state.fragrances.status)
+    const errors = useSelector((state) => state.fragrances.error)
+    useEffect(() => {
+        if(fragranceStatus === 'idle') {
+            dispatch(fetchFragrances())
+        }
+    }, [fragranceStatus, dispatch])
+
     const [products, setProducts] = useState({
-        categoryId: '',
+        collectionId: '',
         productName: '',
         productPrice: '',
         productQuantity: '',
@@ -46,9 +89,7 @@ export const EditForm = ({match}) => {
 
     const productDetails = useSelector((state) => state.getProductDetails);
     const { product, loading, error } = productDetails;
-
-    console.log(products)
-
+    
     useEffect(() => {
         if (product && match.params.uuid !== product.uuid) {
             dispatch(getProductDetails(match.params.uuid));
@@ -62,14 +103,13 @@ export const EditForm = ({match}) => {
         console.log(product_image)
 
         const formData = {
-            category_id: products.categoryId===undefined  ? product.category_id : products.categoryId,
+            fragrance_id: selected,
+            collection_id: products.collectionId===undefined  ? product.collection_id : products.collectionId,
             product_name: products.productName===undefined  ? product.product_name : products.productName,
             price:products.productPrice===undefined  ? product.price : products.productPrice,
             quantity: products.productQuantity===undefined  ? product.quantity : products.productQuantity,
             description: products.productDescription===undefined  ? product.description : products.productDescription
         }
-
-
 
         setButtonClick(true)
         setLoading(true)
@@ -128,16 +168,80 @@ export const EditForm = ({match}) => {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Categories</label>
+                                            <label>
+                                                Fragrances
+                                                <button type="button" onClick={addNewFragrance} className="btn btn-sm btn-outline-success mx-2"><i className="fa fa-plus"></i></button>
+                                            </label>
+                                            {/*{product.fragrance_description.map((item, index) => (*/}
+                                            {/*  <div className="row my-2" >*/}
+                                            {/*      <div className="col-6">*/}
+                                            {/*          <select className='form-control' data-id={index} name="fragrance" onChange={handleFragranceChange} value={item.fragrance}>*/}
+                                            {/*              <option>Select Fragrance</option>*/}
+                                            {/*              {fragrances.map((fragrance) => (*/}
+                                            {/*                <option key={fragrance.id} value={fragrance.id}>{fragrance.title}</option>*/}
+                                            {/*              ))}*/}
+                                            {/*          </select>*/}
+                                            {/*      </div>*/}
+                                            {/*      <div className="col-6">*/}
+                                            {/*          <input type="text" name="description" data-id={index} onChange={handleFragranceChange} value={item.description} className="form-control p-3" placeholder="Fragrance Description"/>*/}
+                                            {/*      </div>*/}
+                                            {/*  </div>*/}
+                                            {/*))}*/}
+                                            {listFragrances.map((item, index) => (
+                                              <div className="row my-2" >
+                                                  <div className="col-6">
+                                                      <select className='form-control' data-id={index} name="fragrance" onChange={handleFragranceChange} value={item.fragrance}>
+                                                          <option>Select Fragrance</option>
+                                                          {fragrances.map((fragrance) => (
+                                                            <option key={fragrance.id} value={fragrance.id}>{fragrance.title}</option>
+                                                          ))}
+                                                      </select>
+                                                  </div>
+                                                  <div className="col-6">
+                                                      <input type="text" name="description" data-id={index} onChange={handleFragranceChange} value={item.description} className="form-control p-3" placeholder="Fragrance Description"/>
+                                                  </div>
+                                              </div>
+                                            ))}
+                                        </div>
+                                        <div className="form-group">
+                                            <label>
+                                                Category
+                                                <button type="button" onClick={addNewFeature} className="btn btn-sm btn-outline-success mx-2"><i className="fa fa-plus"></i></button>
+                                            </label>
+                                            {listFeatures.map((item, index) => (
+                                              <div className="row my-2" >
+                                                  <div className="col-6">
+                                                      <select className='form-control' data-id={index} name="type" onChange={handleFeatureChange} value={item.type}>
+                                                          <option>Select Type</option>
+                                                          <option value='scented'>Scented</option>
+                                                          <option value='non-scented'>Non-Scented</option>
+                                                      </select>
+                                                  </div>
+                                                  <div className="col-6">
+                                                      <input type="number" name="price" data-id={index} onChange={handleFeatureChange} value={item.price} className="form-control p-3" placeholder="Price"/>
+                                                  </div>
+                                              </div>
+                                            ))}
+                                        </div>
+                                        {/*<div className="form-group">*/}
+                                        {/*    <label>Fragrance</label>*/}
+                                        {/*    <MultiSelect*/}
+                                        {/*      options={options}*/}
+                                        {/*      value={selected}*/}
+                                        {/*      onChange={setSelected}*/}
+                                        {/*      labelledBy='Select Fragrance' />*/}
+                                        {/*</div>*/}
+                                        <div className="form-group">
+                                            <label>Collections</label>
                                             <select
                                                 className="form-control"
                                                 data-placeholder="Scented Candles"
-                                                name="categoryId"
+                                                name="collectionId"
                                                 onChange={handleOnChange}
-                                                value={products &&products.categoryId || product.category_id}
+                                                value={products &&products.collectionId || product.collection_id}
                                             >
                                                 <option value="">Select Category</option>
-                                                <Category categoryId={product.category_id} />
+                                                <Collections collectionId={product.collection_id} />
                                             </select>
                                         </div>
                                         <div className="form-group">
